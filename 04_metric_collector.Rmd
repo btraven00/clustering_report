@@ -94,6 +94,7 @@ metrics_files <- z[num_hashes==0]
 head(metrics_files, 2)
 
 for (fn in metrics_files){
+    if (file.size(fn) == 0) next
     d[[fn]] <- list(
         run = read_params(stub = args$wd, file_path = fn),    
         metrics = read.csv(fn, header = TRUE)
