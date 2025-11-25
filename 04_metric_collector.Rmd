@@ -128,7 +128,7 @@ ds <- lapply(d, function(x) {
   cbind(run_fd, unname(x$metrics))
 })
               
-fd <- do.call(rbind.data.frame, ds)
+fd <- do.call(rbind.data.frame, unname(ds))
 fd$file <- rownames(fd)
 rownames(fd) <- 1:nrow(fd)
 colnames(fd) <- c('metric', 'method', 'data', 'k-2', 'k-1', 'k', 'k+1', 'k+2', 'file')
