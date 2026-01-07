@@ -52,14 +52,11 @@ tokenize <- function(fn, out_dir_stub = 'out/') {
     i <- 1
     res <- list()
     while (i < length(fp)) {
-        res[[as.character(i)]] <- fp[i:(i+2)]
-        i <- i+3
-    }
-    return(res)
-}
-
 read_params <- function(file_path, stub = 'out') {
-    triples <- tokenize(file_path) 
+    debug_file <- "/tmp/clustering_debug.log"
+    cat(sprintf("[DEBUG %s] read_params called with file_path='%s', stub='%s'\n", Sys.time(), file_path, stub), file = debug_file, append = TRUE)
+    triples <- tokenize(file_path)
+    cat(sprintf("[DEBUG %s] tokenize() returned %d triples\n", Sys.time(), length(triples)), file = debug_file, append = TRUE)
     # print(triples)
     params_path = ""
     res <- list()
@@ -67,13 +64,24 @@ read_params <- function(file_path, stub = 'out') {
     for (i in 1:length(triples)){
         triple <- triples[[i]]
         parent = file.path(parent, triple[1], triple[2], triple[3])
+        cat(sprintf("[DEBUG %s] Processing triple %d: [%s, %s, %s]\n", Sys.time(), i, triple[1], triple[2], triple[3]), file = debug_file, append = TRUE)
+        cat(sprintf("[DEBUG %s] Constructed parent path: '%s'\n", Sys.time(), parent), file = debug_file, append = TRUE)
         if (triple[3] != "default"){
             param_file_path <- file.path(parent, "parameters.json")
+            cat(sprintf("[DEBUG %s] Looking for parameters.json at: '%s'\n", Sys.time(), param_file_path), file = debug_file, append = TRUE)
+            cat(sprintf("[DEBUG %s] File exists: %s\n", Sys.time(), file.exists(param_file_path)), file = debug_file, append = TRUE)
+            if (file.exists(param_file_path)) {
+                cat(sprintf("[DEBUG %s] Reading JSON file...\n", Sys.time()), file = debug_file, append = TRUE)
+                raw_json <- readLines(param_file_path, warn = FALSE)
+                cat(sprintf("[DEBUG %s] Raw JSON content (first 500 chars):\n%s\n", Sys.time(), substr(paste(raw_json, collapse = "\n"), 1, 500)), file = debug_file, append = TRUE)
+            }
             #cat(param_file_path, "\n")
             params <- fromJSON(param_file_path)
+            cat(sprintf("[DEBUG %s] Successfully parsed JSON\n", Sys.time()), file = debug_file, append = TRUE)
             res[[i]] <- c(triple[1], triple[2], triple[3], params)
         }
     }
+    cat(sprintf("[DEBUG %s] read_params returning list with %d elements\n", Sys.time(), length(res)), file = debug_file, append = TRUE)
     return(res)
 }
 
